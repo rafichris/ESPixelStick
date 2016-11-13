@@ -28,7 +28,7 @@
 #include "_E131.h"
 
 /* Name and version */
-const char VERSION[] = "2.0";
+const char VERSION[] = "0.1";
 
 #define HTTP_PORT       80      /* Default web server port */
 #define DATA_PIN        2       /* Pixel output - GPIO2 */
@@ -93,7 +93,22 @@ uint32_t        *seqError;      /* Sequence error tracking for each universe */
 uint16_t        uniLast = 1;    /* Last Universe to listen for */
 bool            reboot = false; /* Flag to reboot the ESP */
 
+uint16_t        demoPixelValue  = 1;     /* Initial demo value */
+uint16_t        demoPixelValueR = 0;
+uint16_t        demoPixelValueG = 0;
+uint16_t        demoPixelValueB = 0;
+uint8_t              demo             = 0;     /* Demo type for sequences 0=off */
+static unsigned long lWaitMillis      = 1;     /* Waiting time for demo sequences */
+uint8_t              demoCounter      = 0;     /* Auxiliary value for demo sequences */
+
 /* Called from web handlers */
 void saveConfig();
+
+/* Forward Declarations */
+void serializeConfig(String &jsonString, bool pretty = false, bool creds = false);
+void loadConfig();
+int  initWifi();
+void initWeb();
+void updateConfig();
 
 #endif /* ESPIXELSTICK_H_ */

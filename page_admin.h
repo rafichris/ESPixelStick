@@ -50,7 +50,10 @@ void handle_fw_upload(AsyncWebServerRequest *request, String filename,
 }
 
 void send_admin_vals(AsyncWebServerRequest *request) {
+    char chipId[7] = { 0 };
+    snprintf(chipId, sizeof(chipId), "%06x", ESP.getChipId());
     String values = "";
+    values += "chipid|div|" + String(chipId) + "\n";
     values += "version|div|" + (String)VERSION + "\n";
     values += "title|div|" + config.id + " - Admin\n";
     request->send(200, "text/plain", values);

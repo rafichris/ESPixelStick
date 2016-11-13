@@ -27,8 +27,8 @@
 //#define ESPS_MODE_SERIAL
 
 /* Fallback configuration if config.json is empty or fails */
-const char ssid[] = "ENTER_SSID_HERE";
-const char passphrase[] = "ENTER_PASSPHRASE_HERE";
+const char ssid[]       = "ENTER_SSID_HERE";             /* Replace with your SSID */
+const char passphrase[] = "ENTER_PASSPHRASE_HERE";       /* Replace with your WPA2 passphrase */
 
 /*****************************************/
 /*         END - Configuration           */
@@ -56,6 +56,7 @@ const char passphrase[] = "ENTER_PASSPHRASE_HERE";
 #else
 #error "No valid output mode defined."
 #endif
+#include "page_demo_pixel.h"
 
 /* Common Web pages and handlers */
 #include "page_root.h"
@@ -74,13 +75,6 @@ uint8_t             *seqTracker;        /* Current sequence numbers for each Uni
 uint32_t            lastUpdate;         /* Update timeout tracker */
 AsyncWebServer      web(HTTP_PORT);     /* Web Server */
 
-/* Forward Declarations */
-void serializeConfig(String &jsonString, bool pretty = false, bool creds = false);
-void loadConfig();
-int initWifi();
-void initWeb();
-void updateConfig();
-
 void setup() {
     /* Generate and set hostname */
     char chipId[7] = { 0 };
@@ -89,6 +83,8 @@ void setup() {
     WiFi.hostname(hostname);
 
     /* Initial pin states */
+    // Workaround
+    pinMode(4, INPUT);
     pinMode(DATA_PIN, OUTPUT);
     digitalWrite(DATA_PIN, LOW);
 
@@ -124,6 +120,7 @@ void setup() {
             WiFi.mode(WIFI_AP);
             String ssid = "ESPixel " + String(chipId);
             WiFi.softAP(ssid.c_str());
+            Serial.println(WiFi.softAPIP()); 
         } else {
             LOG_PORT.println(F("**** FAILED TO ASSOCIATE WITH AP, REBOOTING ****"));
             ESP.restart();
@@ -218,7 +215,7 @@ void initWeb() {
     });
 
     /* Config file handler for testing */
-    //web.serveStatic("/configfile", SPIFFS, "/config.json");
+    web.serveStatic("/configfile", SPIFFS, "/config.json");
 
     /* JSON Config Handler */
     web.on("/conf", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -239,6 +236,9 @@ void initWeb() {
     web.on("/admin.html", HTTP_POST, send_admin_html, handle_fw_upload);
     web.on("/config_net.html", HTTP_POST, send_config_net_html);
 
+    web.on("/demo/pixelvals", HTTP_GET, send_demo_pixel_vals);
+    web.on("/demo_pixel.html", HTTP_POST, send_demo_pixel_html);
+
     /* Static handler */
 #if defined(ESPS_MODE_PIXEL)
     web.on("/config/pixelvals", HTTP_GET, send_config_pixel_vals);
@@ -251,7 +251,7 @@ void initWeb() {
 #endif
 
     web.onNotFound([](AsyncWebServerRequest *request) {
-        request->send(404, "text/plain", "Page not found");
+        request->send(404, "text/plain", "Page '" + String(request->url()) + "' not found :( ");
     });
 
     web.begin();
@@ -505,9 +505,89 @@ void loop() {
         ESP.restart();
     }
 
+    /* DEMO handler */
+    if (demo) {
+        switch (demo) {
+            case 1: /* ALL */
+                for (int i = 0; i < 3*170-1; i++) {
+                    if(i%3 == 0)
+                      pixels.setValue(i, demoPixelValueR);
+                    if(i%3 == 1)
+                      pixels.setValue(i, demoPixelValueG);
+                    if(i%3 == 2)
+                      pixels.setValue(i, demoPixelValueB);
+                }
+                if (pixels.canRefresh())
+                    pixels.show();
+                demo = 0;
+                lWaitMillis = 0;
+                break;
+                
+            case 2: /* ON-OFF */
+                if( (long)( millis() - lWaitMillis ) >= 0){
+                  lWaitMillis = millis() + demoPixelValue;                 
+                  for (int i = 0; i < 3*170-1; i++) {
+                      if(demoCounter)
+                        pixels.setValue(i, 255);
+                      else
+                        pixels.setValue(i, 0);
+                  }
+                  if (pixels.canRefresh())
+                    pixels.show();
+                  if(demoCounter)
+                    demoCounter = 0;
+                  else
+                    demoCounter = 1;
+                }
+
+                break;
+                
+            case 3: /* HOPPING */
+                if( (long)( millis() - lWaitMillis ) >= 0){
+                  lWaitMillis = millis() + demoPixelValue;                  
+                  for (int i = 0; i < 3*170-1; i++) {
+                      if(i == demoCounter)
+                        pixels.setValue(i, 255);
+                      else
+                        pixels.setValue(i, 0);
+                  }
+                  if (pixels.canRefresh())
+                    pixels.show();
+                  demoCounter = ++demoCounter % config.channel_count;
+                }
+                break;
+                
+            case 4: /* FLIPPING */
+                if( (long)( millis() - lWaitMillis ) >= 0){
+                  lWaitMillis = millis() + demoPixelValue;                  
+                  for (int i = 0; i < 3*170-1; i++) {
+                      if(i%2 == demoCounter)
+                        pixels.setValue(i, 255);
+                      else
+                        pixels.setValue(i, 0);
+                  }
+                  if (pixels.canRefresh())
+                    pixels.show();
+                  demoCounter = ++demoCounter % 2;
+                }
+                break;
+                
+            case 5: /* PULSE */
+                Serial.println("PULSE");
+                break;
+                
+            case 0:
+                Serial.println(F("No DEMO should not bring you to this line!"));
+        }
+
+        yield();
+        return;
+    }
+
     /* Parse a packet and update pixels */
     if (e131.parsePacket()) {
         if ((e131.universe >= config.universe) && (e131.universe <= uniLast)) {
+            
             /* Universe offset and sequence tracking */
             uint8_t uniOffset = (e131.universe - config.universe);
             if (e131.packet->sequence_number != seqTracker[uniOffset]++) {
@@ -523,11 +603,12 @@ void loop() {
             /* Find start of data based off the Universe */
             uint16_t dataStart = uniOffset * UNIVERSE_LIMIT;
 
-            /* Caculate how much data we need for this buffer */
+            /* Calcuate how much data we need for this buffer */
             uint16_t dataStop = config.channel_count;
             if ((dataStart + UNIVERSE_LIMIT) < dataStop)
                 dataStop = dataStart + UNIVERSE_LIMIT;
 
+Serial.print(".");
             /* Set the data */
             uint16_t buffloc = 0;
             for (int i = dataStart; i < dataStop; i++) {

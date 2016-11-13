@@ -1,0 +1,90 @@
+<title id="title"></title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" type="text/css" href="style.css">
+<a href="/" class="btn btn--s">&lt;</a>&nbsp;&nbsp;<strong>ESPixel Demo</strong>
+<hr>
+<form action="" method="post">
+<table border="0" cellspacing="0" cellpadding="3">
+<tr>Set value to all pixels:<td align="right">
+    R<input id="slider1r" type="range" min="0" max="255" step="1" value ="128" onchange="printValue('slider1r','rangeValue1r')"/>
+</td>
+    <td><input type="text" id="rangeValue1r" name="rangeValue1r" value="" onchange="printValueRev('slider1r','rangeValue1r')" style="width:30px"></td><td rowspan="3"><input type="submit" style="width:60px" class="btn btn--m btn--blue" value="Set"></td></tr>
+<tr><td align="right">
+    G<input id="slider1g" type="range" min="0" max="255" step="1" value ="128" onchange="printValue('slider1g','rangeValue1g')"/>
+</td><td><input type="text" id="rangeValue1g" name="rangeValue1g" value="" onchange="printValueRev('slider1g','rangeValue1g')" style="width:30px"></td></tr>
+<tr><td align="right">
+    B<input id="slider1b" type="range" min="0" max="255" step="1" value ="128" onchange="printValue('slider1b','rangeValue1b')"/>
+</td><td><input type="text" id="rangeValue1b" name="rangeValue1b" value="" onchange="printValueRev('slider1b','rangeValue1b')" style="width:30px"></td></tr>
+</table>   
+</form>
+<hr>
+<form action="" method="post">
+<table border="0" cellspacing="0" cellpadding="3">
+<tr>ON-OFF Toggling (ms):<td align="right">
+    <input id="slider2" type="range" min="1" max="2000" step="1" value="1000" onchange="printValue('slider2','rangeValue2')"/>
+</td>
+    <td><input type="text" id="rangeValue2" name="rangeValue2" value="" onchange="printValueRev('slider2','rangeValue2')" style="width:40px"></td><td><input type="submit" style="width:60px" class="btn btn--m btn--blue" value="Run"></td></tr>
+</table>   
+</form>
+
+<hr>
+<form action="" method="post">
+<table border="0" cellspacing="0" cellpadding="3">
+<tr>Hopping (ms):<td align="right">
+    <input id="slider3" type="range" min="1" max="2000" step="1" value="1000" onchange="printValue('slider3','rangeValue3')"/>
+</td>
+    <td><input type="text" id="rangeValue3" name="rangeValue3" value="" onchange="printValueRev('slider3','rangeValue3')"  style="width:40px"></td><td><input type="submit" style="width:60px" class="btn btn--m btn--blue" value="Run"></td></tr>
+</table>   
+</form>
+
+<hr>
+<form action="" method="post">
+<table border="0" cellspacing="0" cellpadding="3">
+<tr>Flipping (ms):<td align="right">
+    <input id="slider4" type="range" min="1" max="2000" step="1" value="1000" onchange="printValue('slider4','rangeValue4')"/>
+</td>
+    <td><input type="text" id="rangeValue4" name="rangeValue4" value="" onchange="printValueRev('slider4','rangeValue4')"  style="width:40px"></td><td><input type="submit" style="width:60px" class="btn btn--m btn--blue" value="Run"></td></tr>
+</table>   
+</form>
+
+<hr>
+<form name="frmStpDemo" action="" method="post" enctype="multipart/form-data">
+<table border="0" cellspacing="0" cellpadding="3">
+<tr><td colspan="2" align="center">
+    <input type="submit" name="stopDemo" onClick="stopDemo()" style="width:250px" class="btn btn--m btn--red" value="STOP DEMO"></td></tr>
+</table>
+</form>
+
+<script>
+    function printValue(sliderID, textbox) {
+        var x = document.getElementById(textbox);
+        var y = document.getElementById(sliderID);
+        x.value = y.value;
+    }
+    function printValueRev(sliderID, textbox) {
+        var x = document.getElementById(textbox);
+        var y = document.getElementById(sliderID);
+        y.value = x.value;
+    }
+    window.onload = function() {
+        printValue('slider1r', 'rangeValue1r'); 
+        printValue('slider1g', 'rangeValue1g'); 
+        printValue('slider1b', 'rangeValue1b'); 
+        printValue('slider2', 'rangeValue2'); 
+        printValue('slider3', 'rangeValue3'); 
+        printValue('slider4', 'rangeValue4'); 
+    }
+
+//    function stopDemo() {
+//        setValues("/config/survey");
+//    }
+</script>
+
+<script type="text/javascript" src="script.js"></script>
+
+<script>
+    setValues("/demo/pixelvals");
+    function stopDemo() {
+        //document.getElementById("frmStpDemo").reset();
+    }
+</script>
