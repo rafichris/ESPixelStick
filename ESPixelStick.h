@@ -102,6 +102,9 @@ static unsigned long lWaitMillis      = 1;     /* Waiting time for demo sequence
 uint8_t              demoCounter      = 0;     /* Auxiliary value for demo sequences */
 
 /* Called from web handlers */
+int initWifi();
+void initWeb();
+void loadConfig();
 void saveConfig();
 
 /* Forward Declarations */
