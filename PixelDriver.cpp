@@ -105,6 +105,24 @@ void PixelDriver::setPin(uint8_t pin) {
         this->pin = pin;
 }
 
+void PixelDriver::enableOutput(){
+    if(oeState==false){
+        oeState = true;
+    }
+}
+
+void PixelDriver::disableOutput(){
+    if(oeState){
+        oeState = false;
+    }
+}
+
+String PixelDriver::getOEstatus(){
+    if(oeState) return "OE:enabled";
+    else return "OE:disabled";
+}
+
+
 void PixelDriver::setGamma(bool gamma) {
     ws2811gamma = gamma;
 }

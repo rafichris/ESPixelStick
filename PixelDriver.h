@@ -93,6 +93,9 @@ class PixelDriver {
     int begin();
     int begin(PixelType type);
     int begin(PixelType type, PixelColor color, uint16_t length);
+    void enableOutput();
+    void disableOutput();
+    String getOEstatus();
     void setPin(uint8_t pin);
     void setGamma(bool gamma);
     void updateOrder(PixelColor color);
@@ -108,6 +111,8 @@ class PixelDriver {
     inline bool canRefresh() {
         return (micros() - startTime) >= refreshTime;
     }
+
+    bool       oeState;
 
  private:
     PixelType  type;            // Pixel type

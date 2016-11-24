@@ -28,7 +28,7 @@
 #include "_E131.h"
 
 /* Name and version */
-const char VERSION[] = "0.1";
+const char VERSION[] = "0.2";
 
 #define HTTP_PORT       80      /* Default web server port */
 #define DATA_PIN        2       /* Pixel output - GPIO2 */
@@ -40,6 +40,7 @@ const char VERSION[] = "0.1";
 #define CONNECT_TIMEOUT 15000   /* 15 seconds */
 #define REBOOT_DELAY    100     /* Delay for rebooting once reboot flag is set */
 #define LOG_PORT        Serial  /* Serial port for console logging */
+#define UPD_INTERVAL    1000    /*  */
 
 /* E1.33 / RDMnet stuff - to be moved to library */
 #define RDMNET_DNSSD_SRV_TYPE   "draft-e133.tcp"
@@ -84,6 +85,11 @@ typedef struct {
     SerialType  serial_type;    /* Serial type */
     BaudRate    baudrate;       /* Baudrate */
 #endif
+    /* Scheduler */
+    bool        schedule;        /* Use scheduler */
+    uint8_t     scheduler_vals[4][2][2]; /* 1|2|3|4 / start|end / hh|mm */ 
+    uint8_t     dmxTimeout;
+
 } config_t;
 
 /* Globals */
@@ -92,6 +98,7 @@ config_t        config;
 uint32_t        *seqError;      /* Sequence error tracking for each universe */
 uint16_t        uniLast = 1;    /* Last Universe to listen for */
 bool            reboot = false; /* Flag to reboot the ESP */
+bool                ntp_update = false; /* Update NTP timestamp */
 
 uint16_t        demoPixelValue  = 1;     /* Initial demo value */
 uint16_t        demoPixelValueR = 0;
@@ -100,6 +107,13 @@ uint16_t        demoPixelValueB = 0;
 uint8_t              demo             = 0;     /* Demo type for sequences 0=off */
 static unsigned long lWaitMillis      = 1;     /* Waiting time for demo sequences */
 uint8_t              demoCounter      = 0;     /* Auxiliary value for demo sequences */
+
+unsigned long       curTime;
+unsigned long       start_midnight;
+unsigned long       end_midnight;
+bool                locked = 0;
+unsigned long       lastMillis = 0;
+unsigned long       lastDMXPacket = 0;
 
 /* Called from web handlers */
 int initWifi();
@@ -113,5 +127,6 @@ void loadConfig();
 int  initWifi();
 void initWeb();
 void updateConfig();
+bool enableOutput_scheduler();
 
 #endif /* ESPIXELSTICK_H_ */

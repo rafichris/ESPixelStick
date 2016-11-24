@@ -31,10 +31,9 @@
   "e131": {
     "universe": 1,
     "channel_start": 1,
-    "channel_count": 512,
+    "channel_count": 510,
     "multicast": false
   },
-
   "pixel": {
     "type": 0,
     "color": 0,
@@ -44,5 +43,25 @@
   "serial": {
     "type": 0,
     "baudrate": 57600
+  },
+    "scheduler": {
+    "active": false,
+    "DMXtimeout": 0,
+    "hh01a": 0,
+    "mm01a": 0,
+    "hh01b": 0,
+    "mm01b": 0,
+    "hh02a": 0,
+    "mm02a": 0,
+    "hh02b": 0,
+    "mm02b": 0,
+    "hh03a": 0,
+    "mm03a": 0,
+    "hh03b": 0,
+    "mm03b": 0,
+    "hh04a": 0,
+    "mm04a": 0,
+    "hh04b": 0,
+    "mm04b": 0
   }
 }

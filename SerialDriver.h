@@ -63,6 +63,9 @@ class SerialDriver {
     int begin(HardwareSerial *theSerial, SerialType type, uint16_t length);
     int begin(HardwareSerial *theSerial, SerialType type, uint16_t length,
             BaudRate baud);
+    void enableOutput();
+    void disableOutput();
+    String getOEstatus();
     void startPacket();
     void show();
 
@@ -100,7 +103,7 @@ class SerialDriver {
     uint8_t         *_asyncdata;    // Async buffer
     uint32_t        frameTime;      // Time it takes for a frame TX to complete
     uint32_t        startTime;      // When the last frame TX started
-
+    bool            oeState;
 
     /* Fill the FIFO */
     static const uint8_t* ICACHE_RAM_ATTR fillFifo(const uint8_t *buff, const uint8_t *tail);
