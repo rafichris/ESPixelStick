@@ -48,6 +48,16 @@
 </form>
 
 <hr>
+<form action="" method="post">
+<table border="0" cellspacing="0" cellpadding="3">
+<tr>Flipping RED/GREEN (ms):<td align="right">
+    <input id="slider5" type="range" min="1" max="2000" step="1" value="1000" onchange="printValue('slider5','rangeValue5')"/>
+</td>
+    <td><input type="text" id="rangeValue5" name="rangeValue5" value="" onchange="printValueRev('slider5','rangeValue5')"  style="width:40px"></td><td><input type="submit" style="width:60px" class="btn btn--m btn--blue" value="Run"></td></tr>
+</table>   
+</form>
+
+<hr>
 <form name="frmStpDemo" action="" method="post" enctype="multipart/form-data">
 <table border="0" cellspacing="0" cellpadding="3">
 <tr><td colspan="2" align="center">
@@ -73,6 +83,7 @@
         printValue('slider2', 'rangeValue2'); 
         printValue('slider3', 'rangeValue3'); 
         printValue('slider4', 'rangeValue4'); 
+        printValue('slider5', 'rangeValue5'); 
     }
 
 //    function stopDemo() {
