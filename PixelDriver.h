@@ -103,7 +103,7 @@ class PixelDriver {
 
     /* Set channel value at address */
     inline void setValue(uint16_t address, uint8_t value) {
-        if(address >= szBuffer) return; // do not write out of allocated memory
+        if(address >= numPixels) return; // do not write out of allocated memory
         pixdata[address] = value;
     }
 

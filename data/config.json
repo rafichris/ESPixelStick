@@ -20,7 +20,7 @@
       1,
       1
     ],
-    "dhcp": false,
+    "dhcp": true,
     "ap_fallback": true
   },
 
