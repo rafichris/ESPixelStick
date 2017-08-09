@@ -291,7 +291,7 @@ void validateConfig() {
     if (config.channel_count > PIXEL_LIMIT * 3)
         config.channel_count = PIXEL_LIMIT * 3;
     else if (config.channel_count < 1)
-        config.channel_count = 1;
+        config.channel_count = 3;
 
     /* GECE Limits */
     if (config.pixel_type == PixelType::GECE) {
@@ -305,7 +305,7 @@ void validateConfig() {
     if (config.channel_count > RENARD_LIMIT)
         config.channel_count = RENARD_LIMIT;
     else if (config.channel_count < 1)
-        config.channel_count = 1;
+        config.channel_count = 3;
 
     if (config.serial_type == SerialType::DMX512 && config.channel_count > UNIVERSE_LIMIT)
         config.channel_count = UNIVERSE_LIMIT;
@@ -352,7 +352,9 @@ void updateConfig() {
 #endif
     LOG_PORT.print(F("- Listening for "));
     LOG_PORT.print(config.channel_count);
-    LOG_PORT.print(F(" channels, from Universe "));
+    LOG_PORT.print(F(" channels ("));
+    LOG_PORT.print(config.channel_count / 3);
+    LOG_PORT.print(F(" pixels), from Universe "));
     LOG_PORT.print(config.universe);
     LOG_PORT.print(F(" to "));
     LOG_PORT.println(uniLast);
@@ -562,6 +564,7 @@ bool enableOutput_scheduler(){
     }
     return false;
 }
+
 /* Main Loop */
 void loop() {
     /* Reboot handler */
@@ -581,7 +584,7 @@ void loop() {
         switch (demo) {
           pixels.enableOutput();
             case 1: /* ALL */
-                for (int i = 0; i < 3*170-1; i++) {
+                for (int i = 0; i < config.channel_count; i++) {
                     if(i%3 == 0)
                       pixels.setValue(i, demoPixelValueR);
                     if(i%3 == 1)
@@ -598,7 +601,7 @@ void loop() {
             case 2: /* ON-OFF */
                 if( (long)( millis() - lWaitMillis ) >= 0){
                   lWaitMillis = millis() + demoPixelValue;                 
-                  for (int i = 0; i < 3*170-1; i++) {
+                  for (int i = 0; i < config.channel_count; i++) {
                       if(demoCounter)
                         pixels.setValue(i, 255);
                       else
@@ -617,7 +620,7 @@ void loop() {
             case 3: /* HOPPING */
                 if( (long)( millis() - lWaitMillis ) >= 0){
                   lWaitMillis = millis() + demoPixelValue;                  
-                  for (int i = 0; i < 3*170-1; i++) {
+                  for (int i = 0; i < config.channel_count; i++) {
                       if(i == demoCounter)
                         pixels.setValue(i, 255);
                       else
@@ -632,7 +635,7 @@ void loop() {
             case 4: /* FLIPPING */
                 if( (long)( millis() - lWaitMillis ) >= 0){
                   lWaitMillis = millis() + demoPixelValue;                  
-                  for (int i = 0; i < 3*170-1; i++) {
+                  for (int i = 0; i < config.channel_count; i++) {
                       if(i%2 == demoCounter)
                         pixels.setValue(i, 255);
                       else
@@ -643,8 +646,33 @@ void loop() {
                   demoCounter = ++demoCounter % 2;
                 }
                 break;
-                
-            case 5: /* PULSE */
+
+            case 5: /* FLIPPING GREEN/RED */
+                if( (long)( millis() - lWaitMillis ) >= 0){
+                  lWaitMillis = millis() + demoPixelValue;              // calc next update timestamp              
+                  for (int i = 0; i < config.channel_count; i++) {
+                      if(i%3 == 0){ // RED Channel
+                        if((i/3)%2 != demoCounter)
+                          pixels.setValue(i, 255);
+                        else
+                          pixels.setValue(i, 0);
+                      }
+                      if(i%3 == 1){ // GREEN Channel
+                        if((i/3)%2 == demoCounter)
+                          pixels.setValue(i, 255);
+                        else
+                          pixels.setValue(i, 0);
+                      }
+                      if(i%3 == 2) // BLUE Channel
+                        pixels.setValue(i, 0);
+                  }
+                  if (pixels.canRefresh())
+                    pixels.show();
+                  demoCounter = ++demoCounter % 2;
+                }
+                break;
+              
+            case 6: /* PULSE */
                 Serial.println("PULSE");
                 break;
                 

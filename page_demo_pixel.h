@@ -14,7 +14,8 @@ void send_demo_pixel_html(AsyncWebServerRequest *request) {
             if (p->name() == "rangeValue2") { /* ON-OFF */ demoPixelValue = p->value().toInt();  demo = 2; }
             if (p->name() == "rangeValue3")   { /* HOPPING */ demoPixelValue = p->value().toInt(); demo = 3; }
             if (p->name() == "rangeValue4")   { /* FLIPPING */ demoPixelValue = p->value().toInt(); demo = 4; }
-            if (p->name() == "rangeValue5")   { /* PULSE */ demoPixelValue = p->value().toInt(); demo = 5; }
+            if (p->name() == "rangeValue5")   { /* FLIPPING GREEN/RED */ demoPixelValue = p->value().toInt(); demo = 5; }
+            if (p->name() == "rangeValue6")   { /* PULSE */ demoPixelValue = p->value().toInt(); demo = 6; }
           }
         }
         AsyncWebServerResponse *response = request->beginResponse(303);
